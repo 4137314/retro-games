@@ -1,5 +1,5 @@
-RETRO-GAMES - GNU Terminal Retro Games Collection
-=================================================
+RETRO-GAMES - Terminal Retro Games Collection
+=============================================
 
 Copyright (C) 2025  4137314 <your@email.com>
 
@@ -22,7 +22,7 @@ along with RETRO-GAMES.  If not, see <https://www.gnu.org/licenses/>.
 
 SYNOPSIS
 --------
-RETRO-GAMES is a GNU terminal-based collection of classic games written in C, using ncurses for the user interface. It includes implementations of Snake, Tetris, Pac-Man, Pong, Breakout, Chess, Minesweeper, and Sudoku.
+RETRO-GAMES is a terminal-based collection of classic games written in C, using ncurses for the user interface. It includes implementations of Snake, Tetris, Pac-Man, Pong, Breakout, Chess, Minesweeper, and Sudoku.
 
 FEATURES
 --------
