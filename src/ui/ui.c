@@ -5,13 +5,7 @@
 #include <unistd.h>
 
 // Include i file header dei giochi
-#include "/home/oudeys/Documenti/Coding/C/ncurses-retro-games/src/games/breakout/breakout.h"
-#include "/home/oudeys/Documenti/Coding/C/ncurses-retro-games/src/games/minesweeper/minesweeper.h"
-#include "/home/oudeys/Documenti/Coding/C/ncurses-retro-games/src/games/pacman/pacman.h"
-#include "/home/oudeys/Documenti/Coding/C/ncurses-retro-games/src/games/pong/pong.h"
-#include "/home/oudeys/Documenti/Coding/C/ncurses-retro-games/src/games/snake/snake.h"
-#include "/home/oudeys/Documenti/Coding/C/ncurses-retro-games/src/games/sudoku/sudoku.h"
-#include "/home/oudeys/Documenti/Coding/C/ncurses-retro-games/src/games/tetris/tetris.h"
+#include "include/games/games.h"
 
 // Funzione per pulire up ncurses
 void cleanup_ui_ncurses() {
