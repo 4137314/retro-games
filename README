@@ -1,1 +1,75 @@
-This project demonstrates the use of ncurses to create a terminal-based user interface in C.
+RETRO-GAMES - GNU Terminal Retro Games Collection
+=================================================
+
+Copyright (C) 2025  4137314 <your@email.com>
+
+This file is part of RETRO-GAMES.
+
+RETRO-GAMES is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+RETRO-GAMES is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with RETRO-GAMES.  If not, see <https://www.gnu.org/licenses/>.
+
+-------------------------------------------------------------------------------
+
+SYNOPSIS
+--------
+RETRO-GAMES is a GNU terminal-based collection of classic games written in C, using ncurses for the user interface. It includes implementations of Snake, Tetris, Pac-Man, Pong, Breakout, Chess, Minesweeper, and Sudoku.
+
+FEATURES
+--------
+- Modular C codebase with GNU Autotools build system.
+- Multiple classic games, each in its own module.
+- Terminal-based UI using ncurses.
+- Easily extensible for new games.
+
+INSTALLATION
+------------
+To build and install RETRO-GAMES, use the standard GNU procedure:
+
+  1. Unpack the source code:
+	  $ tar xvf retro-games-x.y.tar.gz
+	  $ cd retro-games-x.y
+
+  2. Configure the package for your system:
+	  $ ./configure [OPTIONS]
+
+  3. Build and install:
+	  $ make
+	  $ make check      # optional: run tests
+	  $ make install
+
+USAGE
+-----
+Run the main program from the terminal:
+	 $ retro-games
+
+Follow the on-screen menu to select and play a game.
+
+DEVELOPMENT
+-----------
+- Source code is in `src/` and `include/`.
+- Each game has its own subdirectory under `src/games/` and `include/games/`.
+- Documentation is in `doc/` (Texinfo format).
+- Build system uses GNU Autotools (`configure.ac`, `Makefile.am`).
+
+REPORTING BUGS
+--------------
+Report bugs or suggestions to <your@email.com> or via the project repository.
+
+AUTHORS
+-------
+4137314 <your@email.com>
+
+SEE ALSO
+--------
+See the file LICENSE for copying conditions.
+Full documentation is available in the `doc/` directory (main.texi).

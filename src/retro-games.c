@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <ncurses.h>
-#include "/home/oudeys/Documenti/Coding/C/ncurses-retro-games/src/ui/ui.h" // Includi l'header per le funzioni di interfaccia utente
+#include "../include/ui/ui.h"
 
 int main() {
     setup_ui_ncurses(); // Configura ncurses
