@@ -1,4 +1,4 @@
-#include "pacman.h"
+#include "games/pacman/pacman.h"
 #include <stdlib.h>
 #include <unistd.h>
 #include <time.h>

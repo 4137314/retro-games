@@ -1,5 +1,5 @@
 // pong.c
-#include "pong.h"
+#include "games/pong/pong.h"
 #include <stdlib.h>
 #include <unistd.h>
 #include <time.h>

@@ -1,0 +1,72 @@
+# Standard GNU .gitignore for C/C++ projects (no Doxygen)
+# Build artifacts
+*.o
+*.lo
+*.la
+*.a
+*.so
+*.so.*
+*.dll
+*.dylib
+*.exe
+*.out
+*.obj
+*.lib
+*.dll
+*.pdb
+*.mod
+*.d
+
+# Autotools and build system
+Makefile
+Makefile.in
+aclocal.m4
+autom4te.cache/
+config.h
+config.h.in
+config.log
+config.status
+configure
+depcomp
+install-sh
+ltmain.sh
+missing
+stamp-h1
+libtool
+
+# Editor/IDE files
+*~
+*.swp
+*.swo
+.vscode/
+.idea/
+.DS_Store
+*.bak
+*.tmp
+*.orig
+*.rej
+
+# Output, logs, and misc
+*.log
+*.aux
+*.toc
+*.info
+*.pdf
+*.ps
+*.dvi
+*.gz
+*.zip
+*.tar
+*.tar.gz
+*.tar.bz2
+*.tar.xz
+
+# Test and coverage
+*.gcda
+*.gcno
+*.gcov
+coverage/
+test-output/
+
+# No Doxygen output
+# (No doxygen/ or html/ or latex/)

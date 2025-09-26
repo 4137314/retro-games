@@ -1,4 +1,4 @@
-#include "snake.h"
+#include "games/snake/snake.h"
 #include <stdlib.h>
 #include <unistd.h>
 #include <time.h>
@@ -82,7 +82,15 @@ void update_snake_game(Snake *snake, SnakeGameState *game_state) {
 // Disegna il serpente sullo schermo
 void draw_snake_game(Snake *snake) {
     for (int i = 0; i < snake->length; ++i) {
-        mvaddch(snake->body_y[i], snake->body_x[i], i == 0 ? 'O' : 'o');  // Disegna la testa del serpente come 'O' e il corpo come 'o'
+        if (i == 0) {
+            attron(COLOR_PAIR(1) | A_BOLD);
+            mvaddch(snake->body_y[i], snake->body_x[i], 'O'); // Testa verde
+            attroff(COLOR_PAIR(1) | A_BOLD);
+        } else {
+            attron(COLOR_PAIR(3));
+            mvaddch(snake->body_y[i], snake->body_x[i], 'o'); // Corpo giallo
+            attroff(COLOR_PAIR(3));
+        }
     }
 }
 
@@ -90,7 +98,9 @@ void draw_snake_game(Snake *snake) {
 void draw_snake_food(SnakeGameState *game_state) {
     for (int i = 0; i < game_state->food_count; ++i) {
         if (game_state->food_x[i] != -1 && game_state->food_y[i] != -1) {
-            mvaddch(game_state->food_y[i], game_state->food_x[i], '*');  // Disegna il cibo come '*'
+            attron(COLOR_PAIR(2) | A_BOLD);
+            mvaddch(game_state->food_y[i], game_state->food_x[i], '@');  // Cibo rosso
+            attroff(COLOR_PAIR(2) | A_BOLD);
         }
     }
 }
@@ -113,8 +123,10 @@ void spawn_snake_food(SnakeGameState *game_state) {
 
 // Disegna il punteggio del serpente sullo schermo
 void draw_snake_score(Snake *snake, SnakeGameState *game_state) {
-    mvprintw(0, 0, "Score: %d", snake->score);  // Stampa il punteggio
-    mvprintw(1, 0, "Level: %d", game_state->level);  // Stampa il livello del gioco
+    attron(A_BOLD);
+    mvprintw(0, 2, "Score: %d", snake->score);  // Stampa il punteggio
+    mvprintw(0, 20, "Level: %d", game_state->level);  // Stampa il livello del gioco
+    attroff(A_BOLD);
 }
 
 // Mostra la schermata di avvio del gioco
@@ -127,10 +139,14 @@ void show_snake_start_screen() {
 
 // Mostra la schermata di game over
 void show_snake_game_over_screen(int score) {
-    clear();  // Pulisce lo schermo
-    mvprintw(LINES / 2, COLS / 2 - 10, "Game Over! Your score: %d", score);  // Mostra il punteggio finale
-    mvprintw(LINES / 2 + 1, COLS / 2 - 10, "Press 'q' to quit");  // Mostra il messaggio per uscire
-    refresh();  // Aggiorna lo schermo
+    clear();
+    attron(COLOR_PAIR(2) | A_BOLD);
+    mvprintw(LINES / 2, COLS / 2 - 10, "GAME OVER! Score: %d", score);
+    attroff(COLOR_PAIR(2) | A_BOLD);
+    attron(COLOR_PAIR(3));
+    mvprintw(LINES / 2 + 1, COLS / 2 - 10, "Premi 'r' per restart o 'q' per uscire");
+    attroff(COLOR_PAIR(3));
+    refresh();
 }
 
 // Inizializza i colori per il gioco Snake
@@ -242,53 +258,50 @@ void play_snake_game() {
     }
 
 start_game:
-    while (!game_state.game_over && (ch = getch()) != 'q') {  // Continua il gioco finché non è game over o viene premuto 'q'
+    int speed = 120000 - (game_state.level * 20000);
+    if (speed < 40000) speed = 40000;
+    while (!game_state.game_over && (ch = getch()) != 'q') {
         switch (ch) {
             case KEY_UP:
-                if (snake.dy == 0) {
-                    snake.dx = 0;
-                    snake.dy = -1;
-                }
+                if (snake.dy == 0) { snake.dx = 0; snake.dy = -1; }
                 break;
             case KEY_DOWN:
-                if (snake.dy == 0) {
-                    snake.dx = 0;
-                    snake.dy = 1;
-                }
+                if (snake.dy == 0) { snake.dx = 0; snake.dy = 1; }
                 break;
             case KEY_LEFT:
-                if (snake.dx == 0) {
-                    snake.dx = -1;
-                    snake.dy = 0;
-                }
+                if (snake.dx == 0) { snake.dx = -1; snake.dy = 0; }
                 break;
             case KEY_RIGHT:
-                if (snake.dx == 0) {
-                    snake.dx = 1;
-                    snake.dy = 0;
-                }
+                if (snake.dx == 0) { snake.dx = 1; snake.dy = 0; }
                 break;
         }
-
-        update_snake_game(&snake, &game_state);  // Aggiorna lo stato del gioco
-        clear();  // Pulisce lo schermo
-        draw_snake_border(stdscr);  // Disegna il bordo del campo di gioco
-        draw_snake_game(&snake);  // Disegna il serpente
-        draw_snake_food(&game_state);  // Disegna il cibo
-        draw_snake_score(&snake, &game_state);  // Disegna il punteggio
-        refresh();  // Aggiorna lo schermo
-        usleep(1 / game_state.level);  // Regola la velocità del gioco in base al livello
+        update_snake_game(&snake, &game_state);
+        erase();
+        draw_snake_border(stdscr);
+        draw_snake_game(&snake);
+        draw_snake_food(&game_state);
+        draw_snake_score(&snake, &game_state);
+        refresh();
+        usleep(speed);
     }
 
-    show_snake_game_over_screen(snake.score);  // Mostra la schermata di game over
-
-    while ((ch = getch()) != 'q') {
-        // Attende che l'utente prema 'q' per uscire
+restart_game:
+    show_snake_game_over_screen(snake.score);
+    while (1) {
+        ch = getch();
+        if (ch == 'q') break;
+        if (ch == 'r') {
+            free(snake.body_x);
+            free(snake.body_y);
+            free(game_state.food_x);
+            free(game_state.food_y);
+            clear();
+            goto start_game;
+        }
     }
-
-    endwin();  // Termina la modalità ncurses
-    free(snake.body_x);  // Libera la memoria allocata per le coordinate X del serpente
-    free(snake.body_y);  // Libera la memoria allocata per le coordinate Y del serpente
-    free(game_state.food_x);  // Libera la memoria allocata per le coordinate X del cibo
-    free(game_state.food_y);  // Libera la memoria allocata per le coordinate Y del cibo
+    endwin();
+    free(snake.body_x);
+    free(snake.body_y);
+    free(game_state.food_x);
+    free(game_state.food_y);
 }

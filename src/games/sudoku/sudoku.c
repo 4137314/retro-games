@@ -1,4 +1,4 @@
-#include "sudoku.h"
+#include "games/sudoku/sudoku.h"
 #include <stdlib.h>
 #include <time.h>
 #include <ncurses.h>

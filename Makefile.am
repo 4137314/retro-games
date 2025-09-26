@@ -1,34 +1,18 @@
-# Nome del target eseguibile
-TARGET = bin/main
+bin_PROGRAMS = retro-games
+retro_games_SOURCES = \
+	src/retro-games.c \
+	src/ui/ui.c \
+	src/games/breakout/breakout.c \
+	src/games/minesweeper/minesweeper.c \
+	src/games/pacman/pacman.c \
+	src/games/pong/pong.c \
+	src/games/snake/snake.c \
+	src/games/sudoku/sudoku.c \
+	src/games/tetris/tetris.c \
+	src/games/chess/chess.c
 
-# Directory per i file oggetto
-OBJ_DIR = obj
+AM_CPPFLAGS = -I$(top_srcdir)/include
+AM_LDFLAGS =
+LDADD = -lncurses
 
-# Directory per i file sorgente
-SRC_DIR = src
-
-# Trova i file sorgente e crea le variabili per i file oggetto
-SRC = $(wildcard $(SRC_DIR)/games/*/*.c) $(SRC_DIR)/ui/ui.c main.c
-OBJ = $(patsubst $(SRC_DIR)/%.c, $(OBJ_DIR)/%.o, $(SRC))
-
-# Target binario
-$(TARGET): $(OBJ)
-	@mkdir -p $(dir $@)
-	gcc -o $@ $(OBJ) `pkg-config --libs ncurses`
-
-# Regole di compilazione per i file oggetto
-$(OBJ_DIR)/%.o: $(SRC_DIR)/%.c
-	@mkdir -p $(dir $@)
-	gcc -Wall -I$(SRC_DIR) `pkg-config --cflags ncurses` -c -o $@ $<
-
-# Compilazione di main.o separatamente
-$(OBJ_DIR)/main.o: main.c
-	@mkdir -p $(dir $@)
-	gcc -Wall -I$(SRC_DIR) `pkg-config --cflags ncurses` -c -o $@ $<
-
-# Regola di pulizia
-clean:
-	rm -f $(TARGET)
-	rm -rf $(OBJ_DIR)
-
-.PHONY: clean
+EXTRA_DIST = README LICENSE configure.ac Makefile.am

@@ -1,4 +1,4 @@
-#include "breakout.h"
+#include "games/breakout/breakout.h"
 #include <ncurses.h>
 #include <stdlib.h>
 

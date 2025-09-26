@@ -1,4 +1,4 @@
-#include "minesweeper.h"
+#include "games/minesweeper/minesweeper.h"
 #include <stdlib.h>
 #include <time.h>
 #include <ncurses.h>

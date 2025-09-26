@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <ncurses.h>
-#include "../include/ui/ui.h"
+#include "ui/ui.h"
 
 int main() {
     setup_ui_ncurses(); // Configura ncurses
