@@ -1,31 +1,50 @@
+#include <signal.h>
+/*
+ * Handle terminal resize (SIGWINCH) by setting a global flag.
+ */
+volatile sig_atomic_t ui_resized = 0;
+void handle_winch(int sig) {
+  (void)sig;
+  ui_resized = 1;
+}
 #include "ui/ui.h"
 #include <stdbool.h>
 
-// Modalità per daltonici (colorblind)
+/* Colorblind mode flag.
+  1 = enabled, 0 = disabled.
+  This variable enables colorblind-friendly color schemes in the UI.
+*/
 int colorblind_mode = 0;
 #include <ncurses.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
 
-// Include i file header dei giochi
+#include "games/games.h" /* Include game headers. */
 #include "games/games.h"
 
-// Funzione per pulire up ncurses
+/*
+ * Clean up ncurses and restore terminal state.
+ */
 void cleanup_ui_ncurses() {
-  endwin(); // Termina la modalità ncurses
+  endwin();
 }
 
-// Funzione per disegnare il bordo della finestra
+/*
+ * Draw the border of the given window with color pairs.
+ */
 void draw_ui_border(WINDOW *win) {
-  wbkgd(win, COLOR_PAIR(1)); // Sfondo blu
+  wbkgd(win, COLOR_PAIR(1)); /* Blue background */
   wattron(win, COLOR_PAIR(3));
-  box(win, 0, 0);            // Bordo giallo
+  box(win, 0, 0);            /* Yellow border */
   wattroff(win, COLOR_PAIR(3));
   wrefresh(win);
 }
 
-// Funzione per disegnare il menu
+/*
+ * Draw the main menu in the given window.
+ * The highlighted item is shown with a different color.
+ */
 void draw_ui_menu(WINDOW *win, int highlight) {
   char *choices[] = {"Breakout", "Minesweeper", "Pac-Man", "Pong",
                      "Snake",    "Sudoku",      "Tetris", "Help", "Credits", "Exit"};
@@ -37,7 +56,7 @@ void draw_ui_menu(WINDOW *win, int highlight) {
     int len = strlen(choices[i]);
     if (len > menu_width) menu_width = len;
   }
-  menu_width += 6; // spazio per > < e padding
+  menu_width += 6; /* Space for > < and padding */
   int x = (win_width - menu_width) / 2;
   int y = (win_height - n_choices) / 2;
   for (int i = 0; i < n_choices; ++i) {
@@ -53,15 +72,17 @@ void draw_ui_menu(WINDOW *win, int highlight) {
       wattroff(win, COLOR_PAIR(2));
     }
   }
-  // Footer sempre centrato
-  const char *footer = "Frecce: muovi  Invio: seleziona  Q: esci  C: colori";
+  /* Footer is always centered. */
+  const char *footer = "Arrows: move  Enter: select  Q: quit  C: colors";
   wattron(win, COLOR_PAIR(7));
   mvwprintw(win, win_height - 2, (win_width - (int)strlen(footer)) / 2, "%s", footer);
   wattroff(win, COLOR_PAIR(7));
   wrefresh(win);
 }
 
-// Funzione per visualizzare il titolo in stile Matrix
+/*
+ * Display the program title in Matrix style.
+ */
 void draw_ui_matrix_title() {
   char *title[] = {
       " ____      _                ____",
@@ -84,7 +105,9 @@ void draw_ui_matrix_title() {
   refresh();
 }
 
-// Animazione di caricamento
+/*
+ * Show a loading animation in the center of the screen.
+ */
 void draw_ui_loading_animation() {
   const char *frames[] = {"|", "/", "-", "\\"};
   int max_y, max_x;
@@ -101,8 +124,15 @@ void draw_ui_loading_animation() {
   refresh();
 }
 
-// Funzione per configurare ncurses
+/*
+ * Set up ncurses and initialize color pairs for the UI.
+ */
 void setup_ui_ncurses() {
+  struct sigaction sa;
+  sa.sa_handler = handle_winch;
+  sigemptyset(&sa.sa_mask);
+  sa.sa_flags = 0;
+  sigaction(SIGWINCH, &sa, NULL);
   initscr();
   cbreak();
   noecho();
@@ -110,21 +140,42 @@ void setup_ui_ncurses() {
   curs_set(0);
   start_color();
   use_default_colors();
-  init_pair(1, COLOR_BLUE, -1);    // Bordo blu
-  init_pair(2, COLOR_GREEN, -1);   // Testo verde
-  init_pair(3, COLOR_YELLOW, -1);  // Bordo giallo
-  init_pair(4, COLOR_RED, -1);     // Highlight rosso
-  init_pair(5, COLOR_CYAN, -1);    // Titolo Matrix
-  init_pair(6, COLOR_WHITE, COLOR_MAGENTA); // Colorblind highlight
-  init_pair(7, COLOR_BLACK, COLOR_WHITE);   // Footer
+  init_pair(1, COLOR_BLUE, -1);    /* Blue border */
+  init_pair(2, COLOR_GREEN, -1);   /* Green text */
+  init_pair(3, COLOR_YELLOW, -1);  /* Yellow border */
+  init_pair(4, COLOR_RED, -1);     /* Red highlight */
+  init_pair(5, COLOR_CYAN, -1);    /* Matrix title */
+  init_pair(6, COLOR_WHITE, COLOR_MAGENTA); /* Colorblind highlight */
+  init_pair(7, COLOR_BLACK, COLOR_WHITE);   /* Footer */
 }
 
-// Funzione per gestire la logica del menu
+/*
+ * Handle the main menu logic and user input loop.
+ */
 void handle_ui_menu() {
+  int min_width = 40, min_height = 18;
   int start_y, start_x, height, width;
   getmaxyx(stdscr, height, width);
-  start_y = 8;
-  start_x = 5;
+  // Center menu for any terminal size
+  start_y = (height - 18) / 2;
+  if (start_y < 0) start_y = 0;
+  start_x = (width - 40) / 2;
+  if (start_x < 0) start_x = 0;
+  while (width < min_width || height < min_height) {
+    clear();
+    attron(COLOR_PAIR(4) | A_BOLD);
+    mvprintw(height/2, (width-28)/2, "Terminal too small! Resize, please.");
+    attroff(COLOR_PAIR(4) | A_BOLD);
+    refresh();
+    int ch = getch();
+    getmaxyx(stdscr, height, width);
+    if (ch == 'q' || ch == 'Q') {
+      cleanup_ui_ncurses();
+      exit(0);
+    }
+  }
+  clear();
+  refresh();
   int n_choices = 10;
   int choice;
   int highlight = 0;
@@ -134,15 +185,50 @@ void handle_ui_menu() {
   WINDOW *menu_win = newwin(height - 8, width - 10, start_y, start_x);
   keypad(menu_win, TRUE);
   while (1) {
+    if (ui_resized) {
+      ui_resized = 0;
+      endwin();
+      refresh();
+      clearok(stdscr, TRUE);
+      refresh();
+      getmaxyx(stdscr, height, width);
+      start_y = (height - 18) / 2;
+      if (start_y < 0) start_y = 0;
+      start_x = (width - 40) / 2;
+      if (start_x < 0) start_x = 0;
+      while (width < min_width || height < min_height) {
+        clear();
+        attron(COLOR_PAIR(4) | A_BOLD);
+        mvprintw(height/2, (width-28)/2, "Terminal too small! Resize, please.");
+        attroff(COLOR_PAIR(4) | A_BOLD);
+        refresh();
+        int ch = getch();
+        getmaxyx(stdscr, height, width);
+        start_y = (height - 18) / 2;
+        if (start_y < 0) start_y = 0;
+        start_x = (width - 40) / 2;
+        if (start_x < 0) start_x = 0;
+        if (ch == 'q' || ch == 'Q') {
+          cleanup_ui_ncurses();
+          exit(0);
+        }
+      }
+      clear();
+      refresh();
+      delwin(menu_win);
+      menu_win = newwin(height - 8, width - 10, start_y, start_x);
+      keypad(menu_win, TRUE);
+      redraw = 1;
+    }
     if (redraw || highlight != prev_highlight) {
-      erase(); // Pulisce stdscr (solo sfondo)
+      erase(); /* Clear stdscr (background only) */
       draw_ui_matrix_title();
-      werase(menu_win); // Pulisce solo la finestra menu
+      werase(menu_win); /* Clear only the menu window */
       draw_ui_border(menu_win);
       draw_ui_menu(menu_win, highlight);
-      wnoutrefresh(stdscr); // Prepara stdscr
-      wnoutrefresh(menu_win); // Prepara menu_win
-      doupdate(); // Aggiorna tutto insieme (evita flicker/sovrapposizioni)
+      wnoutrefresh(stdscr); /* Prepare stdscr */
+      wnoutrefresh(menu_win); /* Prepare menu_win */
+      doupdate(); /* Update all at once (avoids flicker/overlap) */
       prev_highlight = highlight;
       redraw = 0;
     }
@@ -159,7 +245,7 @@ void handle_ui_menu() {
       colorblind_mode = !colorblind_mode;
       redraw = 1;
       break;
-    case 10: // Enter
+  case 10: /* Enter */
       delwin(menu_win);
       endwin();
       if (highlight == 0) play_breakout_game();

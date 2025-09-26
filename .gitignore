@@ -58,6 +58,8 @@ libtool
 *.zip
 *.tar
 *.tar.gz
+build/
+compile
 *.tar.bz2
 *.tar.xz
 
