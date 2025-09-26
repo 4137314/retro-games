@@ -30,24 +30,33 @@ void draw_ui_menu(WINDOW *win, int highlight) {
   char *choices[] = {"Breakout", "Minesweeper", "Pac-Man", "Pong",
                      "Snake",    "Sudoku",      "Tetris", "Help", "Credits", "Exit"};
   int n_choices = sizeof(choices) / sizeof(char *);
-  int x = 4, y = 2;
+  int win_width, win_height;
+  getmaxyx(win, win_height, win_width);
+  int menu_width = 0;
+  for (int i = 0; i < n_choices; ++i) {
+    int len = strlen(choices[i]);
+    if (len > menu_width) menu_width = len;
+  }
+  menu_width += 6; // spazio per > < e padding
+  int x = (win_width - menu_width) / 2;
+  int y = (win_height - n_choices) / 2;
   for (int i = 0; i < n_choices; ++i) {
     if (highlight == i) {
       wattron(win, colorblind_mode ? COLOR_PAIR(6) : COLOR_PAIR(4));
       wattron(win, A_BOLD | A_REVERSE);
-      mvwprintw(win, y, x, "> %s <", choices[i]);
+      mvwprintw(win, y + i, x, "> %-*s <", menu_width - 4, choices[i]);
       wattroff(win, A_BOLD | A_REVERSE);
       wattroff(win, colorblind_mode ? COLOR_PAIR(6) : COLOR_PAIR(4));
     } else {
       wattron(win, COLOR_PAIR(2));
-      mvwprintw(win, y, x, "  %s", choices[i]);
+      mvwprintw(win, y + i, x, "  %-*s  ", menu_width - 4, choices[i]);
       wattroff(win, COLOR_PAIR(2));
     }
-    y++;
   }
-  // Footer
+  // Footer sempre centrato
+  const char *footer = "Frecce: muovi  Invio: seleziona  Q: esci  C: colori";
   wattron(win, COLOR_PAIR(7));
-  mvwprintw(win, getmaxy(win) - 2, 2, "Frecce: muovi  Invio: seleziona  Q: esci  C: colori");
+  mvwprintw(win, win_height - 2, (win_width - (int)strlen(footer)) / 2, "%s", footer);
   wattroff(win, COLOR_PAIR(7));
   wrefresh(win);
 }

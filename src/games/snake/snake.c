@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include "games/snake/snake.h"
 #include <stdlib.h>
 #include <unistd.h>
@@ -198,6 +199,7 @@ void draw_snake_menu(WINDOW *menu_win, int highlight) {
 
 // Esegue il gioco Snake
 void play_snake_game() {
+    static int high_score = 0;
     Snake snake;
     SnakeGameState game_state;
     int ch;
@@ -260,6 +262,7 @@ void play_snake_game() {
 start_game:
     int speed = 120000 - (game_state.level * 20000);
     if (speed < 40000) speed = 40000;
+    int just_ate = 0;
     while (!game_state.game_over && (ch = getch()) != 'q') {
         switch (ch) {
             case KEY_UP:
@@ -275,18 +278,36 @@ start_game:
                 if (snake.dx == 0) { snake.dx = 1; snake.dy = 0; }
                 break;
         }
+        int old_score = snake.score;
         update_snake_game(&snake, &game_state);
+        just_ate = (snake.score > old_score);
         erase();
         draw_snake_border(stdscr);
         draw_snake_game(&snake);
         draw_snake_food(&game_state);
         draw_snake_score(&snake, &game_state);
+        mvprintw(0, 40, "High Score: %d", (snake.score > high_score) ? snake.score : high_score);
         refresh();
+        if (just_ate) { beep(); flash(); }
         usleep(speed);
     }
+    if (snake.score > high_score) high_score = snake.score;
 
 restart_game:
+    for (int i = 0; i < 6; ++i) {
+        attron(COLOR_PAIR(2) | A_BOLD);
+        draw_snake_border(stdscr);
+        attroff(COLOR_PAIR(2) | A_BOLD);
+        refresh();
+        usleep(100000);
+        erase();
+        refresh();
+        usleep(60000);
+    }
+    beep();
     show_snake_game_over_screen(snake.score);
+    mvprintw(2, 2, "High Score: %d", high_score);
+    refresh();
     while (1) {
         ch = getch();
         if (ch == 'q') break;
