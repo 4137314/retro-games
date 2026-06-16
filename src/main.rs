@@ -29,7 +29,7 @@ impl App {
         menu_state.select(Some(0));
         Self {
             current_screen: CurrentScreen::Menu,
-            menu_options: vec!["🕹️  Gioca a Snake", "🏓  Gioca a Pong", "❌  Esci"],
+            menu_options: vec!["Gioca a Snake", "Gioca a Pong", "Esci"],
             menu_state,
             snake_game: SnakeGame::new(),
             pong_game: PongGame::new(),
@@ -168,7 +168,7 @@ fn ui(f: &mut Frame, app: &mut App) {
         .constraints([Constraint::Length(3), Constraint::Min(0), Constraint::Length(3)])
         .split(size);
 
-    let header = Paragraph::new("🕹️ ARCH RETRO-GAMES ARCADE 🕹️")
+    let header = Paragraph::new("ARCH RETRO-GAMES ARCADE")
         .style(Style::default().fg(Color::Yellow).add_modifier(Modifier::BOLD))
         .block(Block::default().borders(Borders::BOTTOM))
         .alignment(ratatui::layout::Alignment::Center);
